@@ -273,9 +273,10 @@ MonoBehaviour:
   speed: 5
   health: 100
   fixing: 1
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 7126995269396569304}
   progressBar: {fileID: 406667438831506866}
   fillSpeed: 0.5
+  damageInterval: 1
 --- !u!61 &7442239940004625538
 BoxCollider2D:
   m_ObjectHideFlags: 0

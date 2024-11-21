@@ -13,7 +13,7 @@ public class BaseCrew : MonoBehaviour
     [SerializeField] private float speed;
     private GameObject highlight;
     private Animator animator;
-    public int health;
+    public float health;
 
     public bool fixing;
 
@@ -24,7 +24,7 @@ public class BaseCrew : MonoBehaviour
 
     GridManager gridManager;
 
-    public float damageInterval = 1f; // How often damage is applied (in seconds)
+    public float damageInterval = 1f;
     private float nextDamageTime;
 
     public void Start()
@@ -39,7 +39,7 @@ public class BaseCrew : MonoBehaviour
         gridManager = FindObjectOfType<GridManager>();
 
         StationCheck();
-        nextDamageTime = Time.time; // Initialize the damage timer
+        nextDamageTime = Time.time; 
     }
 
     void Update()
@@ -173,14 +173,14 @@ public class BaseCrew : MonoBehaviour
     }
     void ApplyPressureDamage()
     {
-        if (startTile != null && startTile.pressure > 0)
+        if (startTile != null)
         {
             if (Time.time >= nextDamageTime)
             {
                 nextDamageTime = Time.time + damageInterval; 
-                health -= startTile.pressure; 
+                health -= startTile.pressure / 5; 
                 health = Mathf.Max(health, 0); 
-                healthBar.value = (float)health / 100f; 
+                healthBar.value = health / 100f; 
             }
         }
     }
