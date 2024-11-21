@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -10,7 +9,8 @@ public class Tile : MonoBehaviour
     [SerializeField] private Tile tile;
     [SerializeField] private bool door;
     [SerializeField] private bool station;
-    [SerializeField] private bool setOpen;
+
+    public bool open;
 
     public bool isOccupied;
     public Tile previous;
@@ -22,11 +22,18 @@ public class Tile : MonoBehaviour
     private Animator animator;
     private GridManager gridManager;
 
+    public float pressure = 0f;
+    [SerializeField] private float maxPressure = 100.0f;
+
     private void Start()
     {
         gridManager = FindObjectOfType<GridManager>();
         animator = GetComponent<Animator>();
 
+        if (!door && !station)
+        {
+            open = true;
+        }
     }
 
     private void Update()
@@ -42,35 +49,59 @@ public class Tile : MonoBehaviour
                 isOccupied = false;
             }
         }
+        DecreasePressure(Time.deltaTime);
+    }
+
+
+    public void IncreasePressure(float amount)
+    {
+        pressure = Mathf.Min(pressure + amount * 100, maxPressure);
+        UpdateColor();
+    }
+    public void DecreasePressure(float amount)
+    {
+        if (pressure > 0)
+        {
+            pressure -= (amount * 5);
+        }
+        UpdateColor();
+    }
+
+    private void UpdateColor()
+    {
+        float pressurePercentage = Mathf.Clamp01(pressure / maxPressure);
+        Color tileColor = Color.Lerp(Color.white, Color.red, pressurePercentage);
+        GetComponent<SpriteRenderer>().color = tileColor;
     }
 
     private void OnMouseEnter()
     {
         highlight.SetActive(true);
     }
+
     private void OnMouseExit()
     {
         highlight.SetActive(false);
     }
+
     private void OnMouseDown()
     {
         if (door)
         {
             animator.SetBool("Open", !animator.GetBool("Open"));
 
-            if (animator.GetBool("Open") == true)
+            if (animator.GetBool("Open"))
             {
-                setOpen = true;
+                open = true;
             }
             else
             {
-                setOpen = false;
+                open = false;
             }
-
         }
         else if (station)
         {
-
+            // Station-specific logic if required
         }
         else
         {
@@ -86,7 +117,7 @@ public class Tile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (door && !setOpen)
+        if (door && !open)
         {
             if (collider.CompareTag("Crew"))
             {
@@ -94,9 +125,10 @@ public class Tile : MonoBehaviour
             }
         }
     }
+
     private void OnTriggerExit2D(Collider2D collider)
     {
-        if (door && !setOpen)
+        if (door && !open)
         {
             if (collider.CompareTag("Crew"))
             {
@@ -105,5 +137,3 @@ public class Tile : MonoBehaviour
         }
     }
 }
-
- 
