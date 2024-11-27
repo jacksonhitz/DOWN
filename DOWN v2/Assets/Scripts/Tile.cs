@@ -25,10 +25,19 @@ public class Tile : MonoBehaviour
     public float pressure = 0f;
     [SerializeField] private float maxPressure = 100.0f;
 
+    private AudioSource doorOpenAudio; // door open sound
+
+    private SpriteRenderer spriteRenderer; // sprite renderer
+
+    private bool soundPlayed = false; // track if the sound has been played
+
     private void Start()
     {
         gridManager = FindObjectOfType<GridManager>();
         animator = GetComponent<Animator>();
+
+        doorOpenAudio = GetComponent<AudioSource>();  // get audio source component
+        spriteRenderer = GetComponent<SpriteRenderer>(); // get sprite renderer component
 
         if (!door && !station)
         {
@@ -38,6 +47,7 @@ public class Tile : MonoBehaviour
 
     private void Update()
     {
+
         if (!door && !station)
         {
             if (transform.childCount > 3)
@@ -55,11 +65,27 @@ public class Tile : MonoBehaviour
 
     public void IncreasePressure(float amount)
     {
+        // check if the sprite in the sprite renderer is named "Breach1"
+        if (spriteRenderer.sprite != null && spriteRenderer.sprite.name == "Breach1")
+        {
+            if (!soundPlayed)  // only play sound if it's the first time
+            {
+                doorOpenAudio.Play();
+                soundPlayed = true;  // mark the sound as played
+            }
+        }
+        else
+        {
+            soundPlayed = false;  // reset the ssound if sprite is not "Breach1" anymore
+        }
+
         pressure = Mathf.Min(pressure + amount * 100, maxPressure);
         UpdateColor();
+
     }
     public void DecreasePressure(float amount)
     {
+
         if (pressure > 0)
         {
             pressure -= (amount * 5);
@@ -93,6 +119,7 @@ public class Tile : MonoBehaviour
             if (animator.GetBool("Open"))
             {
                 open = true;
+                doorOpenAudio.Play();
             }
             else
             {
@@ -122,6 +149,8 @@ public class Tile : MonoBehaviour
             if (collider.CompareTag("Crew"))
             {
                 animator.SetBool("Open", true);
+
+                doorOpenAudio.Play();
             }
         }
     }
@@ -133,6 +162,7 @@ public class Tile : MonoBehaviour
             if (collider.CompareTag("Crew"))
             {
                 animator.SetBool("Open", false);
+
             }
         }
     }
