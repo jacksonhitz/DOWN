@@ -25,7 +25,7 @@ public class Tile : MonoBehaviour
     public float pressure = 0f;
     [SerializeField] private float maxPressure = 100.0f;
 
-    private AudioSource doorOpenAudio; // door open sound
+    private AudioSource tileAudio; // door open sound
 
     private SpriteRenderer spriteRenderer; // sprite renderer
 
@@ -36,7 +36,7 @@ public class Tile : MonoBehaviour
         gridManager = FindObjectOfType<GridManager>();
         animator = GetComponent<Animator>();
 
-        doorOpenAudio = GetComponent<AudioSource>();  // get audio source component
+        tileAudio = GetComponent<AudioSource>();  // get audio source component
         spriteRenderer = GetComponent<SpriteRenderer>(); // get sprite renderer component
 
         if (!door && !station)
@@ -70,7 +70,7 @@ public class Tile : MonoBehaviour
         {
             if (!soundPlayed)  // only play sound if it's the first time
             {
-                doorOpenAudio.Play();
+                tileAudio.Play(); // play pressure sound
                 soundPlayed = true;  // mark the sound as played
             }
         }
@@ -119,7 +119,7 @@ public class Tile : MonoBehaviour
             if (animator.GetBool("Open"))
             {
                 open = true;
-                doorOpenAudio.Play();
+                tileAudio.Play(); // play open door sound
             }
             else
             {
@@ -150,7 +150,7 @@ public class Tile : MonoBehaviour
             {
                 animator.SetBool("Open", true);
 
-                doorOpenAudio.Play();
+                tileAudio.Play(); // play door open sound
             }
         }
     }
