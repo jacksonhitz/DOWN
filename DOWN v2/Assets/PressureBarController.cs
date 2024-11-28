@@ -26,17 +26,17 @@ public class PressureBarController : MonoBehaviour
         {
             pressureBar.value = normalizedPressure;
 
-            if (fillImage != null)
-            {
-                // Change the fill color based on pressure
-                fillImage.color = Color.Lerp(Color.green, Color.red, normalizedPressure);
-            }
-            else
-            {
-                Debug.LogError("Fill Image is not assigned!");
-            }
+            //if (fillImage != null)
+            //{
+            //    // Change the fill color based on pressure
+            //    fillImage.color = Color.Lerp(Color.green, Color.red, normalizedPressure);
+            //}
+            //else
+            //{
+            //    Debug.LogError("Fill Image is not assigned!");
+            //}
 
-            Debug.Log($"Pressure Bar Updated: {normalizedPressure * 100}%");
+            //Debug.Log($"Pressure Bar Updated: {normalizedPressure * 100}%");
         }
         else
         {

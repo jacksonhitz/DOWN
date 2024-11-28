@@ -219,10 +219,10 @@ public class GridManager : MonoBehaviour
                 totalPressure += tile.currentPressure;
             }
         }
-
-        totalPressure = Mathf.Clamp(totalPressure, 0, maxPressure);
-
-        PressureBarController.Instance?.UpdateBar(totalPressure / maxPressure);
+        float maxPressureHere = 1000;
+        totalPressure = Mathf.Clamp(totalPressure, 0, maxPressureHere);
+        //Debug.Log($"Updated Total Pressure: {totalPressure}");
+        PressureBarController.Instance?.UpdateBar(totalPressure / maxPressureHere);
 
         //Debug.Log($"Updated Total Pressure: {totalPressure}/{maxPressure}");
     }
