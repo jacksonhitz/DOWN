@@ -18,6 +18,7 @@ public class Tile : MonoBehaviour
     public int H;
     public int F { get { return G + H; } }
     public Vector2Int gridLocation;
+    public float currentPressure = 0f;
 
     private Animator animator;
     private GridManager gridManager;
@@ -80,8 +81,9 @@ public class Tile : MonoBehaviour
         }
 
         pressure = Mathf.Min(pressure + amount * 100, maxPressure);
+        currentPressure = pressure;
         UpdateColor();
-
+        gridManager.UpdatePressure();
     }
     public void DecreasePressure(float amount)
     {
@@ -90,7 +92,9 @@ public class Tile : MonoBehaviour
         {
             pressure -= (amount * 5);
         }
+        currentPressure = pressure;
         UpdateColor();
+        gridManager.UpdatePressure();
     }
 
     private void UpdateColor()

@@ -6,6 +6,7 @@ public class GridManager : MonoBehaviour
 {
     private static GridManager instance;
     public static GridManager Instance { get { return instance; } }
+    //public static GridManager Instance { get; private set; }
 
     [SerializeField] private int width, height;
     [SerializeField] private Tile floorPrefab;
@@ -32,6 +33,9 @@ public class GridManager : MonoBehaviour
     public List<BaseCrew> crew = new List<BaseCrew>();
     public Dictionary<Vector2, Tile> tiles;
 
+    public float totalPressure = 0f; 
+    public float maxPressure = 100f;
+
     private Transform pilSpawn;
     private Transform engSpawn;
     private Transform docSpawn;
@@ -52,6 +56,8 @@ public class GridManager : MonoBehaviour
         Instantiate(docCrew, docSpawn);
 
         StartCoroutine(BreachRoutine());
+
+        UpdatePressure();
     }
 
     IEnumerator BreachRoutine()
@@ -67,6 +73,8 @@ public class GridManager : MonoBehaviour
 
     void GenerateGrid()
     {
+        Vector3 gridOffset = new Vector3(30, 10, 0); // Add 30 to x and 10 to y
+
         tiles = new Dictionary<Vector2, Tile>();
         floorTiles = new List<Vector2Int>();
 
@@ -83,32 +91,32 @@ public class GridManager : MonoBehaviour
                 }
                 else if (vDoorTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(doorPrefab, new Vector3(x, y), Quaternion.Euler(0f, 0f, 90f));
+                    spawnedTile = Instantiate(doorPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.Euler(0f, 0f, 90f));
                 }
                 else if (hDoorTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(doorPrefab, new Vector3(x, y), Quaternion.identity);
+                    spawnedTile = Instantiate(doorPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.identity);
                 }
                 else if (uStationTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(stationPrefab, new Vector3(x, y), Quaternion.identity);
+                    spawnedTile = Instantiate(stationPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.identity);
                 }
                 else if (dStationTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(stationPrefab, new Vector3(x, y), Quaternion.Euler(0f, 0f, 180f));
+                    spawnedTile = Instantiate(stationPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.Euler(0f, 0f, 180f));
                 }
                 else if (lStationTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(stationPrefab, new Vector3(x, y), Quaternion.Euler(0f, 0f, 90f));
+                    spawnedTile = Instantiate(stationPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.Euler(0f, 0f, 90f));
                 }
                 else if (rStationTiles.Contains(tileLocation))
                 {
-                    spawnedTile = Instantiate(stationPrefab, new Vector3(x, y), Quaternion.Euler(0f, 0f, 270f));
+                    spawnedTile = Instantiate(stationPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.Euler(0f, 0f, 270f));
                 }
                 else
                 {
                     Sprite randomSprite = floorSprites[Random.Range(0, floorSprites.Length)];
-                    spawnedTile = Instantiate(floorPrefab, new Vector3(x, y), Quaternion.identity);
+                    spawnedTile = Instantiate(floorPrefab, gridOffset + new Vector3(x, y, 0), Quaternion.identity);
                     spawnedTile.GetComponent<SpriteRenderer>().sprite = randomSprite;
                     floorTiles.Add(tileLocation);
                 }
@@ -123,11 +131,12 @@ public class GridManager : MonoBehaviour
         }
     }
 
+
     public void Patched(Tile tile)
     {
         tile.GetComponent<SpriteRenderer>().sprite = floorSprites[Random.Range(0, floorSprites.Length)];
         tile.tag = "Floor";
-
+        UpdatePressure();
     }
 
     void GenerateBreach()
@@ -142,6 +151,8 @@ public class GridManager : MonoBehaviour
                 breachTile.tag = "Breach";
                 breachTiles.Add(breachLocation);  
                 StartCoroutine(IncreasePressure(breachLocation));
+
+                UpdatePressure();
             }
         }
     }
@@ -150,7 +161,8 @@ public class GridManager : MonoBehaviour
     {
         while (tiles.TryGetValue(breachLocation, out Tile breachTile) && breachTile.tag == "Breach")
         {
-            PressureSpread(breachLocation);  
+            PressureSpread(breachLocation);
+            UpdatePressure();
             yield return null;  
         }
     }
@@ -193,4 +205,30 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+
+    public void UpdatePressure()
+    {
+        totalPressure = 0f;
+
+        foreach (var tileEntry in tiles)
+        {
+            Tile tile = tileEntry.Value;
+
+            if (tile.tag == "Breach" || tile.tag == "Floor")
+            {
+                totalPressure += tile.currentPressure;
+            }
+        }
+
+        totalPressure = Mathf.Clamp(totalPressure, 0, maxPressure);
+
+        PressureBarController.Instance?.UpdateBar(totalPressure / maxPressure);
+
+        //Debug.Log($"Updated Total Pressure: {totalPressure}/{maxPressure}");
+    }
+
+
+
+
+
 }
